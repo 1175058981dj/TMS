@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.demo.dao.IPrivilageDao">
+    <select id="getPrivilagelist" resultType="SysPrivilage">
+        SELECT   *   FROM   sys_privilage
+        WHERE   id  IN
+        (
+        select   privilageid   FROM    sys_role_privilage
+        WHERE   roleid  IN
+        (
+        select roleid  FROM   sys_user_role
+        WHERE   userid=#{userid}
+        )
+        )
+    </select>
+    <select id="allprivilage" resultType="SysPrivilage">
+        select *  FROM   sys_privilage
+    </select>
+    <select id="getAllPrivilageByRoleid" resultType="SysPrivilage">
+            select * from sys_privilage
+            where id in
+            (
+            select privilageid
+            from sys_role_privilage
+            where roleid=#{roleid}
+            )
+    </select>
+    <delete id="deleteByRoleid">
+        DELETE   FROM   sys_role_privilage  WHERE   roleid=#{roleid}
+    </delete>
+    <insert id="addPrivilage">
+         INSERT  INTO sys_role_privilage(roleid,privilageid) VALUES (#{rid},#{pid})
+    </insert>
+</mapper>

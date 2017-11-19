@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.demo.dao.IChinaMath">
+    <select id="selectallChinaDta" resultType="Chinamath">
+      SELECT *  FROM  Chinamath
+    </select>
+    <!--默认列表的sql-->
+    <resultMap id="selectall" type="News">
+        <id column="id" property="id"></id>
+        <result column="title" property="title"/>
+        <result column="columname" property="columname"/>
+        <result column="clicks" property="clicks"/>
+        <result column="creator" property="creator"/>
+        <result column="updatetime" property="updateTime"/>
+        <result column="type" property="type"/>
+        <result column="Tag" property="tag"/>
+        <result column="imageurl" property="imageurl"/>
+        <result column="defaultTitle" property="defaulttitle"/>
+        <association property="chinamath" javaType="Chinamath">
+            <id column="sysCode" property="syscode"></id>
+            <result column="columnamee" property="columnamee"/>
+        </association>
+        <association property="tmsUser" javaType="TmsUser">
+            <id column="userid" property="userid"></id>
+            <result property="username" column="username"/>
+        </association>
+    </resultMap>
+    <select id="selectallNews" resultMap="selectall">
+       SELECT  *  FROM  chinamath c,news n,tms_user t  WHERE  c.sysCode=n.columname AND  t.userid=n.creator AND  n.columname=#{columname} order BY  type DESC
+    </select>
+    <select id="selectalltitle" resultMap="selectall">
+        SELECT * FROM chinamath c,news n,tms_user t
+        <where>
+            <if test="title!=null || title!=''">
+                n.title LIKE concat('%',#{title},'%')
+            </if>
+            <if test="status!=null || status!=''">
+                AND n.type=#{status}
+            </if>
+            AND n.columname=#{coumname} AND c.sysCode=n.columname AND t.userid=n.creator
+        </where>
+
+    </select>
+    <update id="deletenews">
+         UPDATE  news SET  type='删除' WHERE  id=#{id}
+    </update>
+    <update id="huifunews">
+         UPDATE  news SET  type='草稿' WHERE  id=#{id}
+    </update>
+    <insert id="addnews">
+      INSERT INTO `rbac`.`news`
+            (`id`,
+             `title`,
+             `columname`,
+             `clicks`,
+             `creator`,
+             `updatetime`,
+             `type`,
+             `Tag`,
+             `imageurl`,
+             `defaulttitle`,
+             `zhengwen`)
+VALUES (uuid(),
+        #{title},
+        #{columname},
+        0,
+        #{creator},
+        NOW(),
+        #{type},
+       #{tag},
+        #{imageurl},
+        #{defaulttitle},
+        #{zhengwen});
+    </insert>
+    <resultMap id="selectallcaogao" type="News">
+        <id column="id" property="id"></id>
+        <result column="title" property="title"/>
+        <result column="columname" property="columname"/>
+        <result column="clicks" property="clicks"/>
+        <result column="creator" property="creator"/>
+        <result column="updatetime" property="updateTime"/>
+        <result column="type" property="type"/>
+        <result column="Tag" property="tag"/>
+        <result column="imageurl" property="imageurl"/>
+        <result column="defaultTitle" property="defaulttitle"/>
+        <collection property="chinamathList" ofType="Chinamath">
+            <id column="sysCode" property="syscode"></id>
+            <result column="columnamee" property="columnamee"/>
+        </collection>
+    </resultMap>
+    <select id="selectcountcaogao" resultMap="selectallcaogao">
+           SELECT distinct(columnamee)  FROM  news,chinamath  WHERE news.columname=chinamath.sysCode AND  creator=#{creator} AND type='草稿'
+    </select>
+   <select id="selectcountcao" resultType="int">
+       SELECT  COUNT(*) FROM news WHERE columname IN (SELECT  sysCode FROM chinamath WHERE  columnamee=#{columnamee} AND TYPE='草稿' )
+   </select>
+    <select id="selectlanmu" resultType="Chinamath">
+         SELECT columnamee FROM  chinamath  WHERE   columnamee=#{columname}
+    </select>
+    <resultMap id="selectalla" type="News">
+        <id column="id" property="id"></id>
+        <result column="title" property="title"/>
+        <result column="columname" property="columname"/>
+        <result column="clicks" property="clicks"/>
+        <result column="creator" property="creator"/>
+        <result column="updatetime" property="updateTime"/>
+        <result column="type" property="type"/>
+        <result column="Tag" property="tag"/>
+        <result column="imageurl" property="imageurl"/>
+        <result column="defaultTitle" property="defaulttitle"/>
+        <association property="chinamath" javaType="Chinamath">
+            <id column="sysCode" property="syscode"></id>
+            <result column="columname" property="columname"/>
+        </association>
+    </resultMap>
+    <select id="selectall" resultType="News">
+     SELECT  *  FROM  news  WHERE type="发布" AND  news.columname IN (
+             SELECT   sysCode   FROM chinamath  WHERE   parentCode=#{sysCode}
+    )
+    </select>
+    <select id="">
+
+    </select>
+    <select id="selectupdatechuan" resultType="News">
+         select * from news WHERE id=#{id};
+    </select>
+    <update id="updatenews">
+        UPDATE `rbac`.`news`
+SET
+  `title` =#{title},
+  `columname` = #{columname},
+  `updatetime` = NOW(),
+  `type` = #{type},
+  `Tag` = #{tag},
+  `imageurl` = #{imageurl},
+  `defaulttitle` =  #{defaulttitle},
+  `zhengwen` = #{zhengwen}
+WHERE `id` = #{id}
+    </update>
+</mapper>
